@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laptop Activity Monitor</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f1ff;
+    color: #25213b;
+}
+
+header {
+    background: #49318c;
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+header p {
+    color: #ddd4ff;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.status {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px #ddd8ef;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px #ddd8ef;
+}
+
+.card h3 {
+    color: #6550ad;
+}
+
+.value {
+    font-size: 30px;
+    font-weight: bold;
+    color: #49318c;
+}
+
+.progress {
+    background: #e7e1fa;
+    height: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.bar {
+    height: 100%;
+    width: 0%;
+    background: #7048e8;
+    transition: width 0.4s;
+}
+
+h2 {
+    color: #49318c;
+    margin-top: 35px;
+}
+
+.process-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 13px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+th {
+    color: #49318c;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>💻 Laptop Activity Monitor</h1>
+    <p>Monitor your computer's system activity</p>
+</header>
+
+<div class="container">
+
+    <div class="status">
+        <strong>🟢 Monitoring Status:</strong>
+        <span id="status">Connecting...</span>
+        <p>Operating System: <strong id="os">--</strong></p>
+        <p>Last Updated: <strong id="updated">--</strong></p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>⚡ CPU Usage</h3>
+            <div class="value" id="cpu">--%</div>
+            <div class="progress">
+                <div class="bar" id="cpuBar"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🧠 RAM Usage</h3>
+            <div class="value" id="ram">--%</div>
+            <div class="progress">
+                <div class="bar" id="ramBar"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>⏱️ System Uptime</h3>
+            <div class="value" id="uptime"
+                 style="font-size:22px">--</div>
+            <p>Time since laptop startup</p>
+        </div>
+
+        <div class="card">
+            <h3>🚀 Startup Time</h3>
+            <div class="value" id="boot"
+                 style="font-size:18px">--</div>
+            <p>Last system boot</p>
+        </div>
+
+    </div>
+
+    <h2>📋 Running Processes</h2>
+
+    <div class="process-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Process ID</th>
+                    <th>Application Name</th>
+                </tr>
+            </thead>
+
+            <tbody id="processList">
+                <tr>
+                    <td colspan="2">Loading processes...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer>
+    Laptop Activity Monitor | Local Monitoring System
+</footer>
+
+<script>
+
+async function updateDashboard() {
+
+    const status = document.getElementById("status");
+
+    try {
+
+        const response = await fetch("/api/system-monitor");
+
+        if (!response.ok) {
+            throw new Error("Server error");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("cpu").textContent =
+            data.cpu + "%";
+
+        document.getElementById("ram").textContent =
+            data.ram + "%";
+
+        document.getElementById("uptime").textContent =
+            data.uptime;
+
+        document.getElementById("boot").textContent =
+            data.boot_time;
+
+        document.getElementById("os").textContent =
+            data.os;
+
+        document.getElementById("updated").textContent =
+            new Date().toLocaleTimeString();
+
+        document.getElementById("cpuBar").style.width =
+            Math.min(100, Math.max(0, data.cpu)) + "%";
+
+        document.getElementById("ramBar").style.width =
+            Math.min(100, Math.max(0, data.ram)) + "%";
+
+        // Display running processes
+
+        const processList =
+            document.getElementById("processList");
+
+        processList.replaceChildren();
+
+        data.processes.forEach(process => {
+
+            const row = document.createElement("tr");
+
+            const pidCell = document.createElement("td");
+            pidCell.textContent = process.pid;
+
+            const nameCell = document.createElement("td");
+            nameCell.textContent = process.name || "Unknown";
+
+            row.append(pidCell, nameCell);
+            processList.appendChild(row);
+
+        });
+
+        status.textContent = "Connected successfully";
+
+    } catch (error) {
+
+        status.textContent = "Connection failed";
+
+        console.error(error);
+
+    }
+}
+
+// Update dashboard every 3 seconds
+
+updateDashboard();
+
+setInterval(updateDashboard, 3000);
+
+</script>
+
+</body>
+</html>

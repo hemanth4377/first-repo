@@ -1,0 +1,493 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>URL Detector | Cyber Security</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f0ff;
+            color: #25213b;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #38216f, #7048e8);
+            color: white;
+            text-align: center;
+            padding: 38px 20px;
+        }
+
+        header h1 {
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        header p {
+            color: #e6ddff;
+            font-size: 15px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 680px;
+            background: white;
+            margin: 35px auto;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(70, 45, 130, 0.12);
+        }
+
+        h2 {
+            color: #49318c;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd5f5;
+            border-radius: 9px;
+            font-size: 15px;
+            margin-bottom: 18px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #7048e8;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #7048e8;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #49318c;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            margin-top: 35px;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .empty-result {
+            background: #f5f2ff;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            color: #777;
+        }
+
+        .status-card {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            border: 1px solid;
+        }
+
+        .suspicious {
+            background: #fff0f0;
+            border-color: #ffbaba;
+        }
+
+        .warning {
+            background: #fff9e8;
+            border-color: #f4d78a;
+        }
+
+        .safe {
+            background: #edfff3;
+            border-color: #a7e9bb;
+        }
+
+        .status-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .status-icon {
+            font-size: 30px;
+        }
+
+        .status-heading h3 {
+            font-size: 20px;
+        }
+
+        .suspicious h3 {
+            color: #c62828;
+        }
+
+        .warning h3 {
+            color: #956000;
+        }
+
+        .safe h3 {
+            color: #168343;
+        }
+
+        .message {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .details-card {
+            background: #f8f7fc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .details-card h3 {
+            color: #49318c;
+            margin-bottom: 12px;
+            font-size: 17px;
+        }
+
+        .url-text {
+            background: white;
+            padding: 12px;
+            border: 1px solid #e0d9f5;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+            font-size: 14px;
+        }
+
+        .reason-item {
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            border-left: 4px solid #e05b5b;
+        }
+
+        .recommendation {
+            background: #f0edff;
+            padding: 18px;
+            border-radius: 10px;
+            line-height: 1.6;
+            color: #49318c;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #7048e8;
+            font-weight: bold;
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 4px solid #e5dcff;
+            border-top: 4px solid #7048e8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        @media(max-width: 600px) {
+            header h1 {
+                font-size: 27px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🛡️ URL Detector</h1>
+        <p>Check a link before you click it!</p>
+    </header>
+
+    <div class="container">
+
+        <h2>🔍 Scan Website</h2>
+
+        <p class="description">
+            Enter a website URL to check for suspicious indicators.
+        </p>
+
+        <form id="scanForm">
+
+            <label for="url">Enter Website URL:</label>
+
+            <input
+                type="url"
+                id="url"
+                name="url"
+                placeholder="https://example.com"
+                required
+            >
+
+            <button type="submit" id="scanButton">
+                🔎 Scan URL
+            </button>
+
+        </form>
+
+        <div class="results-section">
+
+            <h2>📊 Scan Results</h2>
+
+            <div class="result" id="result">
+
+                <div class="empty-result">
+                    🛡️ Your scan results will appear here.
+                    <br><br>
+                    Enter a URL above to begin scanning.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer>
+        🛡️ Stay Safe Online | URL Detector
+        <br><br>
+        Always verify suspicious links before opening them.
+    </footer>
+
+<script>
+
+    const form = document.getElementById("scanForm");
+    const result = document.getElementById("result");
+    const button = document.getElementById("scanButton");
+
+    // Escape untrusted text before displaying it as HTML.
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    form.addEventListener("submit", async function(e) {
+
+        e.preventDefault();
+
+        const url = document.getElementById("url").value.trim();
+
+        button.disabled = true;
+        button.textContent = "Scanning...";
+
+        result.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                Analyzing website URL...
+                <br><br>
+                Please wait.
+            </div>
+        `;
+
+        try {
+
+            const response = await fetch("/api/scan", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ url: url })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Unable to scan URL.");
+            }
+
+            const status = String(data.result || "").toLowerCase();
+
+            let cssClass = "warning";
+            let icon = "⚠️";
+            let heading = "No Clear Safety Verdict";
+
+            if (status === "suspicious") {
+                cssClass = "suspicious";
+                icon = "🚨";
+                heading = "Suspicious URL Detected!";
+            }
+            else if (status === "safe") {
+                cssClass = "safe";
+                icon = "🛡️";
+                heading = "No Threat Detected";
+            }
+            else if (status === "no_obvious_warning") {
+                cssClass = "warning";
+                icon = "⚠️";
+                heading = "No Obvious Warning";
+            }
+
+            const scannedURL = escapeHTML(data.url || url);
+            const message = escapeHTML(data.message || "Scan completed.");
+
+            let reasonsHTML = "";
+
+            if (Array.isArray(data.reasons) && data.reasons.length > 0) {
+
+                reasonsHTML = data.reasons.map(reason => `
+                    <div class="reason-item">
+                        ⚠️ ${escapeHTML(reason)}
+                    </div>
+                `).join("");
+
+            } else {
+
+                reasonsHTML = `
+                    <div class="reason-item">
+                        No suspicious indicators were identified by the current checks.
+                    </div>
+                `;
+
+            }
+
+            let recommendation = "";
+
+            if (status === "suspicious") {
+                recommendation = "Avoid opening this URL. Do not enter passwords, OTPs or personal information.";
+            }
+            else if (status === "safe") {
+                recommendation = "No threats were identified by this scanner. Still verify the website before sharing personal information.";
+            }
+            else {
+                recommendation = "The scanner did not identify an obvious warning. This does not guarantee that the website is safe.";
+            }
+
+            result.innerHTML = `
+
+                <div class="status-card ${cssClass}">
+
+                    <div class="status-heading">
+
+                        <span class="status-icon">${icon}</span>
+
+                        <h3>${heading}</h3>
+
+                    </div>
+
+                    <p class="message">${message}</p>
+
+                </div>
+
+                <div class="details-card">
+
+                    <h3>🔗 Scanned URL</h3>
+
+                    <div class="url-text">${scannedURL}</div>
+
+                </div>
+
+                <div class="details-card">
+
+                    <h3>🔍 Security Analysis</h3>
+
+                    ${reasonsHTML}
+
+                </div>
+
+                <div class="recommendation">
+
+                    <strong>🛡️ Safety Recommendation</strong>
+
+                    <br><br>
+
+                    ${recommendation}
+
+                </div>
+
+            `;
+
+        } catch (error) {
+
+            result.innerHTML = `
+                <div class="status-card warning">
+                    <div class="status-heading">
+                        <span class="status-icon">⚠️</span>
+                        <h3>Scan Error</h3>
+                    </div>
+                    <p class="message">
+                        ${escapeHTML(error.message || "Error connecting to server.")}
+                    </p>
+                </div>
+            `;
+
+        } finally {
+
+            button.disabled = false;
+            button.textContent = "🔎 Scan URL";
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
